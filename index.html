@@ -1,0 +1,1017 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Anichin - Streaming Donghua</title>
+    <style>
+        /* ===== RESET & BASE ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: #0a0a0a;
+            color: #f0f0f0;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+        img {
+            max-width: 100%;
+            display: block;
+        }
+
+        /* ===== SCROLLBAR ===== */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1a1a1a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #ffcc00;
+            border-radius: 4px;
+        }
+
+        /* ===== HEADER ===== */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 30px;
+            background: #111;
+            border-bottom: 3px solid #ffcc00;
+            flex-wrap: wrap;
+            gap: 10px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 20px rgba(255, 204, 0, 0.1);
+        }
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .logo img {
+            height: 45px;
+            width: auto;
+            border-radius: 8px;
+        }
+        .logo span {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #ffcc00;
+            letter-spacing: 1px;
+        }
+        nav {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px 15px;
+        }
+        nav a {
+            color: #ccc;
+            font-weight: 500;
+            padding: 6px 12px;
+            border-radius: 20px;
+            transition: 0.3s;
+            font-size: 0.9rem;
+        }
+        nav a:hover,
+        nav a.active {
+            color: #0a0a0a;
+            background: #ffcc00;
+        }
+        nav a.search-link {
+            background: #2a2a2a;
+            padding: 6px 14px;
+            border-radius: 30px;
+        }
+        nav a.search-link:hover {
+            background: #ffcc00;
+            color: #0a0a0a;
+        }
+
+        /* ===== MAIN ===== */
+        main {
+            max-width: 1300px;
+            margin: 0 auto;
+            padding: 20px 30px;
+        }
+
+        /* ===== HERO ===== */
+        .hero {
+            text-align: center;
+            padding: 40px 20px 30px;
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            border-radius: 16px;
+            margin-bottom: 30px;
+            border: 1px solid #2a2a4e;
+        }
+        .hero h1 {
+            font-size: 2.8rem;
+            color: #ffcc00;
+            margin-bottom: 8px;
+        }
+        .hero p {
+            color: #aaa;
+            font-size: 1.1rem;
+        }
+
+        /* ===== SECTION TITLE ===== */
+        .section-title {
+            font-size: 1.6rem;
+            color: #ffcc00;
+            margin: 30px 0 18px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .section-title span {
+            font-size: 1.8rem;
+        }
+
+        /* ===== DONGHUA GRID ===== */
+        .donghua-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+            gap: 20px;
+        }
+        .donghua-card {
+            background: #161616;
+            border-radius: 12px;
+            overflow: hidden;
+            transition: 0.3s;
+            border: 1px solid #2a2a2a;
+        }
+        .donghua-card:hover {
+            transform: translateY(-5px);
+            border-color: #ffcc00;
+            box-shadow: 0 8px 25px rgba(255, 204, 0, 0.15);
+        }
+        .donghua-card a {
+            display: block;
+        }
+        .donghua-card img {
+            width: 100%;
+            aspect-ratio: 2/3;
+            object-fit: cover;
+            background: #222;
+        }
+        .donghua-card .info {
+            padding: 12px 14px 16px;
+        }
+        .donghua-card .info h3 {
+            font-size: 0.95rem;
+            font-weight: 600;
+            margin-bottom: 4px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .donghua-card .info .ep {
+            font-size: 0.8rem;
+            color: #ffcc00;
+        }
+        .donghua-card .info .genre {
+            font-size: 0.7rem;
+            color: #888;
+            margin-top: 4px;
+        }
+
+        /* ===== LOAD MORE ===== */
+        .load-more {
+            display: block;
+            margin: 30px auto;
+            padding: 12px 40px;
+            background: #ffcc00;
+            color: #0a0a0a;
+            border: none;
+            border-radius: 30px;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .load-more:hover {
+            transform: scale(1.03);
+            box-shadow: 0 4px 20px rgba(255, 204, 0, 0.3);
+        }
+        .load-more:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* ===== SCHEDULE ===== */
+        .schedule-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 12px;
+        }
+        .schedule-item {
+            background: #161616;
+            padding: 14px 18px;
+            border-radius: 10px;
+            border-left: 4px solid #ffcc00;
+        }
+        .schedule-item .day {
+            font-weight: 700;
+            color: #ffcc00;
+        }
+        .schedule-item .title {
+            color: #ddd;
+        }
+
+        /* ===== DETAIL ===== */
+        .detail-container {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 30px;
+            background: #161616;
+            border-radius: 16px;
+            padding: 25px;
+            border: 1px solid #2a2a2a;
+        }
+        .detail-container .poster img {
+            width: 100%;
+            border-radius: 12px;
+            aspect-ratio: 2/3;
+            object-fit: cover;
+        }
+        .detail-container .info h2 {
+            font-size: 2rem;
+            color: #ffcc00;
+            margin-bottom: 8px;
+        }
+        .detail-container .info .meta {
+            color: #aaa;
+            font-size: 0.95rem;
+            margin-bottom: 12px;
+        }
+        .detail-container .info .synopsis {
+            color: #ccc;
+            line-height: 1.8;
+        }
+        .detail-container .info .genre-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 12px 0;
+        }
+        .detail-container .info .genre-tags span {
+            background: #2a2a4e;
+            padding: 4px 14px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            color: #ffcc00;
+        }
+        .episode-list {
+            margin-top: 20px;
+        }
+        .episode-list h3 {
+            color: #ffcc00;
+            margin-bottom: 10px;
+        }
+        .episode-list .ep-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 14px;
+            background: #1a1a1a;
+            border-radius: 8px;
+            margin-bottom: 6px;
+            transition: 0.2s;
+            border-left: 3px solid #333;
+        }
+        .episode-list .ep-item:hover {
+            border-left-color: #ffcc00;
+            background: #222;
+        }
+        .episode-list .ep-item a {
+            color: #ddd;
+        }
+        .episode-list .ep-item a:hover {
+            color: #ffcc00;
+        }
+
+        /* ===== SEARCH ===== */
+        .search-box {
+            display: flex;
+            gap: 10px;
+            max-width: 500px;
+            margin: 0 auto 30px;
+        }
+        .search-box input {
+            flex: 1;
+            padding: 12px 20px;
+            border-radius: 30px;
+            border: 2px solid #333;
+            background: #1a1a1a;
+            color: #fff;
+            font-size: 1rem;
+        }
+        .search-box input:focus {
+            outline: none;
+            border-color: #ffcc00;
+        }
+        .search-box button {
+            padding: 12px 28px;
+            border-radius: 30px;
+            border: none;
+            background: #ffcc00;
+            color: #0a0a0a;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        /* ===== AZ LIST ===== */
+        .az-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+        .az-grid a {
+            padding: 8px 16px;
+            background: #1a1a1a;
+            border-radius: 30px;
+            color: #ccc;
+            font-weight: 700;
+            transition: 0.3s;
+            border: 1px solid #2a2a2a;
+        }
+        .az-grid a:hover,
+        .az-grid a.active {
+            background: #ffcc00;
+            color: #0a0a0a;
+            border-color: #ffcc00;
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            header {
+                padding: 10px 16px;
+            }
+            .logo span {
+                font-size: 1.3rem;
+            }
+            .logo img {
+                height: 35px;
+            }
+            nav a {
+                font-size: 0.8rem;
+                padding: 4px 10px;
+            }
+            main {
+                padding: 12px 16px;
+            }
+            .hero h1 {
+                font-size: 2rem;
+            }
+            .donghua-grid {
+                grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+                gap: 14px;
+            }
+            .detail-container {
+                grid-template-columns: 1fr;
+                padding: 16px;
+            }
+            .detail-container .poster img {
+                max-width: 250px;
+                margin: 0 auto;
+            }
+            .search-box {
+                flex-direction: column;
+            }
+            .schedule-list {
+                grid-template-columns: 1fr;
+            }
+        }
+        @media (max-width: 480px) {
+            .donghua-grid {
+                grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+                gap: 10px;
+            }
+            .donghua-card .info h3 {
+                font-size: 0.8rem;
+            }
+        }
+
+        /* ===== FOOTER ===== */
+        footer {
+            text-align: center;
+            padding: 30px 20px;
+            margin-top: 40px;
+            border-top: 1px solid #222;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        /* ===== LOADING ===== */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #888;
+        }
+        .loading::after {
+            content: '...';
+            animation: dots 1.5s steps(4, end) infinite;
+        }
+        @keyframes dots {
+            0% {
+                content: '';
+            }
+            25% {
+                content: '.';
+            }
+            50% {
+                content: '..';
+            }
+            75% {
+                content: '...';
+            }
+        }
+
+        /* ===== HIDDEN ===== */
+        .hidden {
+            display: none !important;
+        }
+
+        /* ===== BACK BUTTON ===== */
+        .back-btn {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #ffcc00;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .back-btn:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo">
+            <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhqeOiwZWG2La8qhHTFZMbvRozl2k_kTfOdglj7YckS5eUsElqHDz-K4o9MpjnGoZHDQ_hsUUCAuYSqKrebJKWWZdlj1eVgJtCZJoi0RtS5Be3PShSc8pIIlQfDGr65IJHiHAL_EY_M5J5OY5LkEGGmO0CTBj23sV1lW-nRAWxqxYZ2rHQX-12KE7n5_vQ/s320/NewLogo.png" alt="Anichin Logo" />
+            <span>Anichin</span>
+        </div>
+        <nav id="main-nav">
+            <a href="#" data-page="home" class="active">Home</a>
+            <a href="#" data-page="ongoing">Ongoing</a>
+            <a href="#" data-page="completed">Completed</a>
+            <a href="#" data-page="latest">Latest</a>
+            <a href="#" data-page="schedule">Schedule</a>
+            <a href="#" data-page="az-list">AZ List</a>
+            <a href="#" data-page="genres">Genres</a>
+            <a href="#" data-page="seasons">Seasons</a>
+            <a href="#" data-page="search" class="search-link">🔍</a>
+        </nav>
+    </header>
+
+    <main id="app">
+        <!-- ===== HERO ===== -->
+        <div class="hero" id="hero">
+            <h1>🐉 Anichin</h1>
+            <p>Streaming Donghua Subtitle Indonesia • Update Setiap Hari</p>
+        </div>
+
+        <!-- ===== CONTENT ===== -->
+        <div id="content"></div>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 Anichin. All rights reserved. | Powered by sankavollerei.web.id</p>
+    </footer>
+
+    <script>
+        // ============================================================
+        //  API CONFIG
+        // ============================================================
+        const API_BASE = 'https://www.sankavollerei.web.id/anime';
+
+        // ============================================================
+        //  STATE
+        // ============================================================
+        let currentPage = 'home';
+        let currentParams = {};
+        let isLoading = false;
+        let hasMore = true;
+
+        // ============================================================
+        //  DOM REFS
+        // ============================================================
+        const content = document.getElementById('content');
+        const navLinks = document.querySelectorAll('#main-nav a[data-page]');
+        const hero = document.getElementById('hero');
+
+        // ============================================================
+        //  API CALLS
+        // ============================================================
+        async function fetchAPI(endpoint) {
+            try {
+                const res = await fetch(`${API_BASE}${endpoint}`);
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                return await res.json();
+            } catch (e) {
+                console.error('API Error:', e);
+                return null;
+            }
+        }
+
+        // ============================================================
+        //  RENDER HELPERS
+        // ============================================================
+        function renderDonghuaGrid(items, container, showLoadMore = true) {
+            if (!items || !items.length) {
+                container.innerHTML = '<p style="color:#888;text-align:center;padding:40px;">Tidak ada data ditemukan.</p>';
+                return;
+            }
+            let html = '<div class="donghua-grid">';
+            items.forEach(item => {
+                const title = item.title || item.judul || 'Unknown';
+                const slug = item.slug || item.slug || '';
+                const thumb = item.thumbnail || item.poster || item.thumb || 'https://via.placeholder.com/300x400?text=No+Image';
+                const ep = item.episode || item.eps || '';
+                const genre = item.genre || item.genres || '';
+                html += `
+                    <div class="donghua-card">
+                        <a href="#" data-action="detail" data-slug="${slug}">
+                            <img src="${thumb}" alt="${title}" loading="lazy" />
+                            <div class="info">
+                                <h3>${title}</h3>
+                                ${ep ? `<div class="ep">📺 ${ep}</div>` : ''}
+                                ${genre ? `<div class="genre">${genre}</div>` : ''}
+                            </div>
+                        </a>
+                    </div>
+                `;
+            });
+            html += '</div>';
+            container.innerHTML = html;
+
+            // Event listener untuk card
+            container.querySelectorAll('[data-action="detail"]').forEach(el => {
+                el.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const slug = el.dataset.slug;
+                    if (slug) navigateTo('detail', { slug });
+                });
+            });
+
+            if (showLoadMore) {
+                const btn = document.createElement('button');
+                btn.className = 'load-more';
+                btn.textContent = 'Muat Lebih Banyak';
+                btn.id = 'load-more-btn';
+                btn.addEventListener('click', () => {
+                    if (currentPage === 'home') loadHome(currentParams.page + 1);
+                    else if (currentPage === 'ongoing') loadOngoing(currentParams.page + 1);
+                    else if (currentPage === 'completed') loadCompleted(currentParams.page + 1);
+                    else if (currentPage === 'latest') loadLatest(currentParams.page + 1);
+                    else if (currentPage === 'genres') loadGenre(currentParams.slug, currentParams.page + 1);
+                    else if (currentPage === 'seasons') loadSeason(currentParams.year, currentParams.page + 1);
+                    else if (currentPage === 'az-list') loadAZ(currentParams.slug, currentParams.page + 1);
+                });
+                container.appendChild(btn);
+            }
+        }
+
+        function renderSchedule(items, container) {
+            if (!items || !items.length) {
+                container.innerHTML = '<p style="color:#888;text-align:center;padding:40px;">Tidak ada jadwal.</p>';
+                return;
+            }
+            let html = '<div class="schedule-list">';
+            items.forEach(item => {
+                const day = item.day || item.hari || '';
+                const title = item.title || item.judul || '';
+                const time = item.time || item.jam || '';
+                html += `
+                    <div class="schedule-item">
+                        <div class="day">${day}</div>
+                        <div class="title">${title}</div>
+                        ${time ? `<div class="time" style="color:#888;font-size:0.8rem;">⏰ ${time}</div>` : ''}
+                    </div>
+                `;
+            });
+            html += '</div>';
+            container.innerHTML = html;
+        }
+
+        function renderDetail(data, container) {
+            if (!data) {
+                container.innerHTML = '<p style="color:#888;text-align:center;padding:40px;">Detail tidak ditemukan.</p>';
+                return;
+            }
+            const title = data.title || data.judul || 'Unknown';
+            const thumb = data.thumbnail || data.poster || data.thumb || 'https://via.placeholder.com/300x400?text=No+Image';
+            const synopsis = data.synopsis || data.sinopsis || data.description || 'Tidak ada sinopsis.';
+            const genres = data.genres || data.genre || [];
+            const episodes = data.episodes || data.episode_list || [];
+
+            let html = `
+                <div class="detail-container">
+                    <div class="poster">
+                        <img src="${thumb}" alt="${title}" />
+                    </div>
+                    <div class="info">
+                        <h2>${title}</h2>
+                        <div class="meta">
+                            ${data.status ? `📌 ${data.status}` : ''}
+                            ${data.year ? ` • 📅 ${data.year}` : ''}
+                                                     ${data.type ? ` • 🎬 ${data.type}` : ''}
+                        </div>
+                        ${genres.length ? `<div class="genre-tags">${genres.map(g => `<span>${g}</span>`).join('')}</div>` : ''}
+                        <div class="synopsis">${synopsis}</div>
+                    </div>
+                </div>
+                ${episodes.length ? `
+                    <div class="episode-list">
+                        <h3>📺 Daftar Episode</h3>
+                        ${episodes.map(ep => `
+                            <div class="ep-item">
+                                <a href="#" data-action="episode" data-slug="${ep.slug || ep}">${ep.title || ep}</a>
+                                ${ep.date ? `<span style="color:#888;font-size:0.8rem;">${ep.date}</span>` : ''}
+                            </div>
+                        `).join('')}
+                    </div>
+                ` : ''}
+                <div style="margin-top:20px;">
+                    <a href="#" data-action="back" class="back-btn">← Kembali</a>
+                </div>
+            `;
+            container.innerHTML = html;
+
+            // Event listener episode
+            container.querySelectorAll('[data-action="episode"]').forEach(el => {
+                el.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const slug = el.dataset.slug;
+                    if (slug) navigateTo('episode', { slug });
+                });
+            });
+
+            container.querySelector('[data-action="back"]')?.addEventListener('click', (e) => {
+                e.preventDefault();
+                navigateTo('home');
+            });
+        }
+
+        function renderEpisode(data, container) {
+            if (!data) {
+                container.innerHTML = '<p style="color:#888;text-align:center;padding:40px;">Episode tidak ditemukan.</p>';
+                return;
+            }
+            const title = data.title || data.judul || 'Episode';
+            const streams = data.streams || data.streaming || data.download || [];
+
+            let html = `
+                <div style="background:#161616;border-radius:16px;padding:25px;border:1px solid #2a2a2a;">
+                    <h2 style="color:#ffcc00;">🎬 ${title}</h2>
+                    ${streams.length ? `
+                        <div style="margin:20px 0;">
+                            <h3 style="color:#ffcc00;">▶️ Streaming</h3>
+                            ${streams.map(s => `
+                                <div style="padding:10px 14px;background:#1a1a1a;border-radius:8px;margin-bottom:6px;border-left:3px solid #ffcc00;">
+                                    <a href="${s.url || s}" target="_blank" style="color:#ddd;">${s.label || s}</a>
+                                </div>
+                            `).join('')}
+                        </div>
+                    ` : '<p style="color:#888;">Tidak ada link streaming.</p>'}
+                    <div style="margin-top:20px;">
+                        <a href="#" data-action="back" class="back-btn">← Kembali</a>
+                    </div>
+                </div>
+            `;
+            container.innerHTML = html;
+
+            container.querySelector('[data-action="back"]')?.addEventListener('click', (e) => {
+                e.preventDefault();
+                navigateTo('home');
+            });
+        }
+
+        function renderGenres(data, container) {
+            if (!data || !data.length) {
+                container.innerHTML = '<p style="color:#888;text-align:center;padding:40px;">Tidak ada genre.</p>';
+                return;
+            }
+            let html = '<div class="donghua-grid" style="grid-template-columns:repeat(auto-fill,minmax(150px,1fr));">';
+            data.forEach(item => {
+                const name = item.name || item.genre || item;
+                const slug = item.slug || item;
+                html += `
+                    <div class="donghua-card" style="text-align:center;padding:20px;">
+                        <a href="#" data-action="genre" data-slug="${slug}">
+                            <div style="font-size:1.2rem;font-weight:600;color:#ffcc00;">${name}</div>
+                        </a>
+                    </div>
+                `;
+            });
+            html += '</div>';
+            container.innerHTML = html;
+
+            container.querySelectorAll('[data-action="genre"]').forEach(el => {
+                el.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const slug = el.dataset.slug;
+                    if (slug) navigateTo('genres', { slug, page: 1 });
+                });
+            });
+        }
+
+        function renderAZ(data, container) {
+            const letters = data || 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+            let html = '<div class="az-grid">';
+            letters.forEach(letter => {
+                html += `<a href="#" data-action="az" data-slug="${letter}">${letter}</a>`;
+            });
+            html += '</div><div id="az-content"></div>';
+            container.innerHTML = html;
+
+            container.querySelectorAll('[data-action="az"]').forEach(el => {
+                el.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const slug = el.dataset.slug;
+                    if (slug) {
+                        document.querySelectorAll('.az-grid a').forEach(a => a.classList.remove('active'));
+                        el.classList.add('active');
+                        navigateTo('az-list', { slug, page: 1 });
+                    }
+                });
+            });
+        }
+
+        function renderSeasons(data, container) {
+            const years = data || ['2023', '2024', '2025', '2026'];
+            let html = '<div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:20px;">';
+            years.forEach(year => {
+                html += `<a href="#" data-action="season" data-year="${year}" style="padding:10px 24px;background:#1a1a1a;border-radius:30px;color:#ccc;border:1px solid #2a2a2a;">${year}</a>`;
+            });
+            html += '</div><div id="season-content"></div>';
+            container.innerHTML = html;
+
+            container.querySelectorAll('[data-action="season"]').forEach(el => {
+                el.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const year = el.dataset.year;
+                    if (year) {
+                        document.querySelectorAll('[data-action="season"]').forEach(a => a.style.background =
+                            '#1a1a1a');
+                        el.style.background = '#ffcc00';
+                        el.style.color = '#0a0a0a';
+                        navigateTo('seasons', { year, page: 1 });
+                    }
+                });
+            });
+        }
+
+        // ============================================================
+        //  LOAD FUNCTIONS
+        // ============================================================
+        async function loadHome(page = 1) {
+            const data = await fetchAPI(`/anime/donghua/home/${page}`);
+            if (data) {
+                currentParams.page = page;
+                renderDonghuaGrid(data, content, page < 5);
+                hasMore = page < 5;
+            }
+        }
+
+        async function loadOngoing(page = 1) {
+            const data = await fetchAPI(`/anime/donghua/ongoing/${page}`);
+            if (data) {
+                currentParams.page = page;
+                renderDonghuaGrid(data, content, page < 5);
+                hasMore = page < 5;
+            }
+        }
+
+        async function loadCompleted(page = 1) {
+            const data = await fetchAPI(`/anime/donghua/completed/${page}`);
+            if (data) {
+                currentParams.page = page;
+                renderDonghuaGrid(data, content, page < 5);
+                hasMore = page < 5;
+            }
+        }
+
+        async function loadLatest(page = 1) {
+            const data = await fetchAPI(`/anime/donghua/latest/${page}`);
+            if (data) {
+                currentParams.page = page;
+                renderDonghuaGrid(data, content, page < 5);
+                hasMore = page < 5;
+            }
+        }
+
+        async function loadSchedule() {
+            const data = await fetchAPI('/anime/donghua/schedule');
+            if (data) {
+                renderSchedule(data, content);
+            }
+        }
+
+        async function loadAZ(slug = 'A', page = 1) {
+            const data = await fetchAPI(`/anime/donghua/az-list/${slug}/${page}`);
+            if (data) {
+                currentParams.slug = slug;
+                currentParams.page = page;
+                const azContainer = document.getElementById('az-content') || content;
+                renderDonghuaGrid(data, azContainer, page < 5);
+                hasMore = page < 5;
+            }
+        }
+
+        async function loadGenres() {
+            const data = await fetchAPI('/anime/donghua/genres');
+            if (data) {
+                renderGenres(data, content);
+            }
+        }
+
+        async function loadGenre(slug = 'action', page = 1) {
+            const data = await fetchAPI(`/anime/donghua/genres/${slug}/${page}`);
+            if (data) {
+                currentParams.slug = slug;
+                currentParams.page = page;
+                renderDonghuaGrid(data, content, page < 5);
+                hasMore = page < 5;
+            }
+        }
+
+        async function loadSeason(year = '2023', page = 1) {
+            const data = await fetchAPI(`/anime/donghua/seasons/${year}`);
+            if (data) {
+                currentParams.year = year;
+                currentParams.page = page;
+                const seasonContainer = document.getElementById('season-content') || content;
+                renderDonghuaGrid(data, seasonContainer, page < 5);
+                hasMore = page < 5;
+            }
+        }
+
+        async function loadDetail(slug) {
+            const data = await fetchAPI(`/anime/donghua/detail/${slug}`);
+            if (data) {
+                renderDetail(data, content);
+            }
+        }
+
+        async function loadEpisode(slug) {
+            const data = await fetchAPI(`/anime/donghua/episode/${slug}`);
+            if (data) {
+                renderEpisode(data, content);
+            }
+        }
+
+        async function loadSearch(keyword, page = 1) {
+            const data = await fetchAPI(`/anime/donghua/search/${encodeURIComponent(keyword)}/${page}`);
+            if (data) {
+                renderDonghuaGrid(data, content, page < 5);
+                hasMore = page < 5;
+            }
+        }
+
+        // ============================================================
+        //  NAVIGATION
+        // ============================================================
+        function navigateTo(page, params = {}) {
+            currentPage = page;
+            currentParams = params;
+
+            navLinks.forEach(link => {
+                link.classList.toggle('active', link.dataset.page === page);
+            });
+
+            hero.style.display = ['home', 'ongoing', 'completed', 'latest'].includes(page) ? 'block' : 'none';
+
+            switch (page) {
+                case 'home':
+                    loadHome(params.page || 1);
+                    break;
+                case 'ongoing':
+                    loadOngoing(params.page || 1);
+                    break;
+                case 'completed':
+                    loadCompleted(params.page || 1);
+                    break;
+                case 'latest':
+                    loadLatest(params.page || 1);
+                    break;
+                case 'schedule':
+                    loadSchedule();
+                    break;
+                case 'az-list':
+                    if (params.slug) loadAZ(params.slug, params.page || 1);
+                    else loadAZ();
+                    break;
+                case 'genres':
+                    if (params.slug) loadGenre(params.slug, params.page || 1);
+                    else loadGenres();
+                    break;
+                case 'seasons':
+                    if (params.year) loadSeason(params.year, params.page || 1);
+                    else loadSeasons();
+                    break;
+                case 'detail':
+                    if (params.slug) loadDetail(params.slug);
+                    break;
+                case 'episode':
+                    if (params.slug) loadEpisode(params.slug);
+                    break;
+                case 'search':
+                    renderSearch(content);
+                    break;
+                default:
+                    loadHome();
+            }
+        }
+
+        function renderSearch(container) {
+            container.innerHTML = `
+                <div style="max-width:600px;margin:0 auto;">
+                    <h2 style="color:#ffcc00;text-align:center;margin-bottom:20px;">🔍 Cari Donghua</h2>
+                    <div class="search-box">
+                        <input type="text" id="search-input" placeholder="Cari judul donghua..." />
+                        <button id="search-btn">Cari</button>
+                    </div>
+                    <div id="search-results"></div>
+                </div>
+            `;
+            document.getElementById('search-btn').addEventListener('click', () => {
+                const keyword = document.getElementById('search-input').value.trim();
+                if (keyword) {
+                    loadSearch(keyword);
+                }
+            });
+            document.getElementById('search-input').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    document.getElementById('search-btn').click();
+                }
+            });
+        }
+
+        function loadSeasons() {
+            const years = ['2023', '2024', '2025', '2026'];
+            let html = '<div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:20px;">';
+            years.forEach(year => {
+                html += `<a href="#" data-action="season" data-year="${year}" style="padding:10px 24px;background:#1a1a1a;border-radius:30px;color:#ccc;border:1px solid #2a2a2a;">${year}</a>`;
+            });
+            html += '</div><div id="season-content"></div>';
+            content.innerHTML = html;
+
+            content.querySelectorAll('[data-action="season"]').forEach(el => {
+                el.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const year = el.dataset.year;
+                    if (year) {
+                        document.querySelectorAll('[data-action="season"]').forEach(a => a.style.background =
+                            '#1a1a1a');
+                        el.style.background = '#ffcc00';
+                        el.style.color = '#0a0a0a';
+                        navigateTo('seasons', { year, page: 1 });
+                    }
+                });
+            });
+        }
+
+        // ============================================================
+        //  NAV LINK EVENTS
+        // ============================================================
+        navLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const page = link.dataset.page;
+                if (page === 'search') {
+                    navigateTo('search');
+                } else if (page === 'az-list') {
+                    navigateTo('az-list');
+                } else if (page === 'genres') {
+                    navigateTo('genres');
+                } else if (page === 'seasons') {
+                    navigateTo('seasons');
+                } else if (page === 'schedule') {
+                    navigateTo('schedule');
+                } else {
+                    navigateTo(page);
+                }
+            });
+        });
+
+        // ============================================================
+        //  INIT
+        // ============================================================
+        navigateTo('home');
+    </script>
+
+</body>
+</html>
