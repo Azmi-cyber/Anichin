@@ -1,0 +1,9 @@
+{
+    "name": "anichin",
+    "version": "1.0.0",
+    "description": "Anichin - Streaming Donghua",
+    "main": "api/anime.js",
+    "scripts": {
+        "start": "vercel dev"
+    }
+}
